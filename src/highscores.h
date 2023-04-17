@@ -1,10 +1,21 @@
+/**
+ * @file highscores.h
+ * @author Daniel (daniel@sstc)
+ * @brief A library useful to keep track of high scores in a memory-constrained
+ * workspace. Maximum number of entries
+ * @version 1.0
+ * @date 2023-04-14
+ *
+ * @copyright Dbusan (c) 2023
+ *
+ */
 #pragma once
 
 #include <stdint.h>
 
-typedef int32_t time_held_t;
-
 #define NR_ENTRIES 10
+
+typedef int32_t time_held_t;
 
 typedef struct HighscoreEntry_t {
   char name[255];
@@ -16,8 +27,16 @@ typedef struct Highscores_t {
   uint8_t current_nr_entries;
 } Highscores;
 
-void HighscoresInsertAndSort(Highscores *self, HighscoreEntry *e);
+/**
+ * @brief HighscoresInsertAndSort inserts a new entry into the list
+ *
+ * @param self
+ * @param e
+ */
+void Highscores_InsertAndSort(Highscores *self, HighscoreEntry *e);
 
-void HighscoresSort(Highscores *self);
+HighscoreEntry Highscores_GetLowest(Highscores *self);
 
-void HighscoresPrint(const Highscores *self);
+void Highscores_Sort(Highscores *self);
+
+void Highscores_Print(const Highscores *self);

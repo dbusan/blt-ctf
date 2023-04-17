@@ -1,5 +1,5 @@
 CC=clang
-CFLAGS=-Wall -std=c99 -g
+CFLAGS=-Wall -std=c11 -g
 
 SRCPATH=src
 BINPATH=bin

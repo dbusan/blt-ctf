@@ -1,4 +1,5 @@
 #include "highscores.h"
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -15,18 +16,31 @@ void HighscoresSort(Highscores *self) {
         Descending);
 }
 
+// only call after sort as this assumes lowest score is at index NR_ENTRIES-1
+bool HighscoreValid(Highscores *self, HighscoreEntry *e) {
+  // returns true if proposed high score entry time is larger than current
+  // minimum
+  printf("%d > %d %d \n", e->time, self->entries[NR_ENTRIES - 1].time,
+         self->current_nr_entries);
+  return ((e->time) > (self->entries[NR_ENTRIES - 1].time));
+}
+
 void HighscoresInsertAndSort(Highscores *self, HighscoreEntry *e) {
 
-  if (self->current_nr_entries == 10) {
+  if (self->current_nr_entries == NR_ENTRIES - 1) {
     // if array capacity reached
     // sort descending
     // drop lowest ranking
     HighscoresSort(self);
-    self->current_nr_entries = 9;
+
+    if (HighscoreValid(self, e)) {
+      self->entries[self->current_nr_entries] = *e;
+    }
+  } else {
+    self->entries[self->current_nr_entries] = *e;
+    self->current_nr_entries++;
   }
 
-  self->entries[self->current_nr_entries] = *e;
-  self->current_nr_entries++;
   HighscoresSort(self);
 }
 
