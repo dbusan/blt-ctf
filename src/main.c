@@ -25,32 +25,32 @@ int main(void) {
 
   // create highscores table with 10 entries total
   Highscores table;
-  table.current_nr_entries = 0;
+  Highscores_Init(&table);
 
-  HighscoresPrint(&table);
+  Highscores_Print(&table);
 
   // test insert entry
-  HighscoresInsertAndSort(&table, &((HighscoreEntry){"VK6ABB", 111}));
+  Highscores_InsertAndSort(&table, &((HighscoreEntry){"VK6ABB", 111}));
   assert(table.current_nr_entries == 1);
 
   HighscoreEntry entry = (HighscoreEntry){"VK6BUS", 12345};
-  HighscoresInsertAndSort(&table, &entry);
-  HighscoresPrint(&table);
+  Highscores_InsertAndSort(&table, &entry);
+  Highscores_Print(&table);
 
   assert(table.current_nr_entries == 2);
 
   for (uint8_t i = 0; i < NR_ENTRIES + 5; i++) {
     entry = (HighscoreEntry){"VK1KEK", (i * 10)};
-    HighscoresInsertAndSort(&table, &entry);
+    Highscores_InsertAndSort(&table, &entry);
   }
   assert(table.current_nr_entries <= NR_ENTRIES);
 
-  HighscoresPrint(&table);
+  Highscores_Print(&table);
   // check that lower than last score do not make it on the list
   entry = (HighscoreEntry){"VK1KEK", 30};
-  HighscoresInsertAndSort(&table, &entry);
+  Highscores_InsertAndSort(&table, &entry);
 
-  HighscoresPrint(&table);
+  Highscores_Print(&table);
 
   // set new
 
