@@ -32,7 +32,6 @@ typedef struct Highscores_t {
   uint8_t current_nr_entries;
 } Highscores;
 
-
 void Highscores_Init(Highscores *self);
 
 /**
@@ -48,7 +47,6 @@ HighscoreEntry Highscores_GetLowest(Highscores *self);
 void Highscores_Sort(Highscores *self);
 
 void Highscores_Print(const Highscores *self);
-
 
 #ifdef __cplusplus
 }
