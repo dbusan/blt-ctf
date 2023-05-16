@@ -14,6 +14,7 @@ cc_test(
     srcs = ["ctf_test.cc"],
     deps = [
         "//src:ctf",
+        "//src:highscores",
         "@com_google_googletest//:gtest_main",
     ],
 )

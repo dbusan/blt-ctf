@@ -7,6 +7,8 @@ extern "C" {
 #include <stdbool.h>
 #include <stdint.h>
 
+#define DEFAULT_CALLSIGN_HOLDER "VK6BSP"
+
 typedef struct CTFGame_t {
   bool is_running;
   char captured_by[20];
@@ -14,11 +16,18 @@ typedef struct CTFGame_t {
 
 } CTFGame;
 
+typedef enum CTFError_t {
+  all_ok,
+  err_ctf_not_running,
+} CTFError;
+
 void CTFGame_Init(CTFGame *self);
 
 void CTFGame_Start(CTFGame *self);
 
-void CTFGame_Capture(CTFGame *self, const char *capturer_callsign);
+void CTFGame_Stop(CTFGame *self);
+
+CTFError CTFGame_Capture(CTFGame *self, const char *capturer_callsign);
 
 void CTFGame_CurrentHolder(CTFGame *self, char *captured_by);
 
@@ -27,9 +36,7 @@ void CTFGame_CurrentHolder(CTFGame *self, char *captured_by);
  *
  * @param self
  */
-void CTFGame_Tick(CTFGame *self);
-
-uint32_t CTFGame_GetHoldTime(CTFGame *self);
+CTFError CTFGame_Tick(CTFGame *self);
 
 #ifdef __cplusplus
 }
