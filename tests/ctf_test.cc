@@ -2,6 +2,9 @@
 
 #include <gtest/gtest.h>
 
+#define STRLEN(x) (sizeof(x) / sizeof(char))
+#define STRNCPY(dest, x) (strncpy(dest, x, STRLEN(x)))
+
 TEST(ctf_run, initialization) {
   CTFGame game;
   CTFGame_Init(&game);
@@ -84,6 +87,11 @@ TEST(ctf_run, repeated_capture) {
 
 // some form of module integration test
 #include "../src/highscores.h"
+
+static void VerifyTopHsEntry(Highscores *table, HighscoreEntry *e) {
+  EXPECT_EQ(table->entries[0].time, e->time);
+}
+
 TEST(ctf_run, highscores) {
   Highscores scoreboard;
   Highscores_Init(&scoreboard);
@@ -97,6 +105,15 @@ TEST(ctf_run, highscores) {
   for (uint16_t i = 0; i < 5600; i++) {
     (void)CTFGame_Tick(&game);
   }
+  // observe highscore change - top should be VK6BUS
+  int16_t uid = 0;
+
+  HighscoreEntry e;
+  STRNCPY(e.name, "VK6BUS");
+  e.time = 5600;
+  e.capture_uid = uid++;
+
+  VerifyTopHsEntry(&scoreboard, &e);
 
   (void)CTFGame_Capture(&game, "VK6CHARLIE");
   for (uint16_t i = 0; i < 3200; i++) {

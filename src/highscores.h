@@ -19,18 +19,19 @@ extern "C" {
 #include <string.h>
 
 #define NR_ENTRIES 10
+#define kUninitialisedUID -1
 
-typedef int32_t time_held_t;
+typedef uint32_t time_held_t;
 
 typedef struct HighscoreEntry_t {
   char name[20];
   time_held_t time;
-  uint16_t capture_id;
+  int16_t capture_uid;
 } HighscoreEntry;
 
 typedef struct Highscores_t {
   HighscoreEntry entries[NR_ENTRIES];
-  HighscoreEntry current_holder;
+  // HighscoreEntry current_holder;
 } Highscores;
 
 void Highscores_Init(Highscores *self);
@@ -42,10 +43,6 @@ void Highscores_Init(Highscores *self);
  * @param e
  */
 void Highscores_HandleEntryAndSort(Highscores *self, HighscoreEntry *e);
-
-HighscoreEntry Highscores_GetLowest(Highscores *self);
-
-void Highscores_Sort(Highscores *self);
 
 void Highscores_Print(const Highscores *self);
 
