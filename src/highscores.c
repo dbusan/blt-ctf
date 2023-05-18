@@ -18,9 +18,9 @@ void Highscores_Init(Highscores *self) {
   }
 }
 
-static uint32_t Descending(const void *first, const void *second) {
-  uint32_t *f = &(((HighscoreEntry *)first)->time);
-  uint32_t *s = &(((HighscoreEntry *)second)->time);
+static time_held_t Descending(const void *first, const void *second) {
+  time_held_t *f = &(((HighscoreEntry *)first)->time);
+  time_held_t *s = &(((HighscoreEntry *)second)->time);
 
   return *s - *f;
 }
@@ -32,8 +32,6 @@ static void Highscores_Sort(Highscores *self) {
 // this checks if the time held is greater than the minimum score
 // CALL SORT FIRST
 static bool Highscores_Validate(Highscores *self, HighscoreEntry *e) {
-  //
-
   return ((e->time) > (self->entries[NR_ENTRIES - 1].time));
 }
 

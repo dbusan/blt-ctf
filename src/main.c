@@ -4,55 +4,29 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "highscores.h"
-
-void test_ctf() {
-  // someone captures flag
-
-  // they are now leaders
-  // timer increments
-  // highscore table updated
-
-  // someone else captures flag
-
-  // they are now leaders
-  // set new leader
-
-  return;
-}
+#include "ctf.h"
 
 int main(void) {
+  CTFGame session;
+  CTFGame_Init(&session);
+  CTFGame_Start(&session);
+  char name[20] = {0x00};
 
-  // create highscores table with 10 entries total
-  Highscores table;
-  Highscores_Init(&table);
-
-  Highscores_Print(&table);
-
-  // test insert entry
-  Highscores_HandleEntryAndSort(&table, &((HighscoreEntry){"VK6ABB", 111}));
-  assert(table.current_nr_entries == 1);
-
-  HighscoreEntry entry = (HighscoreEntry){"VK6BUS", 12345};
-  Highscores_HandleEntryAndSort(&table, &entry);
-  Highscores_Print(&table);
-
-  assert(table.current_nr_entries == 2);
-
-  for (uint8_t i = 0; i < NR_ENTRIES + 5; i++) {
-    entry = (HighscoreEntry){"VK1KEK", (i * 10)};
-    Highscores_HandleEntryAndSort(&table, &entry);
+  int16_t i = 10;
+  while (i--) {
+    snprintf(name, 20, "VK%1dBA%c", i, (80 - i));
+    (void)CTFGame_Capture(&session, name);
+    for (uint16_t ii = 0; ii < (6000 - i * 100); ii++) {
+      (void)CTFGame_Tick(&session);
+    }
   }
-  assert(table.current_nr_entries <= NR_ENTRIES);
 
-  Highscores_Print(&table);
-  // check that lower than last score do not make it on the list
-  entry = (HighscoreEntry){"VK1KEK", 30};
-  Highscores_HandleEntryAndSort(&table, &entry);
+  CTFGame_Highscores(&session);
+  CTFGame_Capture(&session, "BRUHHH");
+  for (uint32_t i = 0; i < 62000; i++) {
+    (void)CTFGame_Tick(&session);
+  }
 
-  Highscores_Print(&table);
-
-  // set new
-
+  CTFGame_Highscores(&session);
   return 0;
 }

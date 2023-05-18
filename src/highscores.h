@@ -21,7 +21,7 @@ extern "C" {
 #define NR_ENTRIES 10
 #define kUninitialisedUID -1
 
-typedef uint32_t time_held_t;
+typedef int32_t time_held_t;
 
 typedef struct HighscoreEntry_t {
   char name[20];
@@ -31,7 +31,6 @@ typedef struct HighscoreEntry_t {
 
 typedef struct Highscores_t {
   HighscoreEntry entries[NR_ENTRIES];
-  // HighscoreEntry current_holder;
 } Highscores;
 
 void Highscores_Init(Highscores *self);

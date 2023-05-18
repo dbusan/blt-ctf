@@ -2,6 +2,8 @@
 
 #include <gtest/gtest.h>
 
+#include "../src/highscores.h"
+
 #define STRLEN(x) (sizeof(x) / sizeof(char))
 #define STRNCPY(dest, x) (strncpy(dest, x, STRLEN(x)))
 
@@ -9,25 +11,32 @@ TEST(ctf_run, initialization) {
   CTFGame game;
   CTFGame_Init(&game);
   EXPECT_EQ(game.is_running, false);
-  CTFGame_Start(&game);
-  // User captures flag
-  EXPECT_EQ(game.time_held, 0);
-  EXPECT_EQ(game.is_running, true);
+  EXPECT_EQ(game.holder.capture_uid, kUninitialisedUID);
 
-  // set default holder to VK6BSP
-  EXPECT_EQ(memcmp(game.captured_by, "VK6BSP", sizeof("VK6BSP") / sizeof(char)), 0);
+  // start game
+  CTFGame_Start(&game);
+
+  // check capture uid as 0
+  EXPECT_EQ(game.holder.capture_uid, 0);
+  // User captures flag
+  EXPECT_EQ(game.holder.time, 0);
+  // check game is running
+  EXPECT_EQ(game.is_running, true);
+  // check default holder is VK6BSP
+  EXPECT_EQ(memcmp(game.holder.name, "VK6BSP", sizeof("VK6BSP") / sizeof(char)), 0);
 
   (void)CTFGame_Tick(&game);
-  EXPECT_EQ(game.time_held, 1);
+  EXPECT_EQ(game.holder.time, 1);
 
   // try ticking while stopped
   CTFGame_Stop(&game);
 
-  // should not increment
+  // should not increment and return error
   EXPECT_EQ(CTFGame_Tick(&game), err_ctf_not_running);
   // should be 0
   EXPECT_EQ(game.is_running, false);
-  EXPECT_EQ(game.time_held, 0);
+  EXPECT_EQ(game.holder.time, 0);
+  EXPECT_EQ(game.holder.capture_uid, kUninitialisedUID);
 }
 
 TEST(ctf_run, capture_and_increment) {
@@ -36,21 +45,19 @@ TEST(ctf_run, capture_and_increment) {
   CTFGame_Start(&game);
   // User captures flag
   ASSERT_EQ(CTFGame_Capture(&game, "VK6BUS"), all_ok);
+  EXPECT_EQ(game.holder.capture_uid, 1);
 
   // observe user is currently flag holder and time since held
   char callsign[20] = {0x00};
-  CTFGame_CurrentHolder(&game, callsign);
+  memcpy(callsign, game.holder.name, sizeof(game.holder.name) / sizeof(char));
 
-  EXPECT_EQ(memcmp(callsign, "VK6BUS", sizeof("VK6BUS") / sizeof(char)), 0);
+  EXPECT_EQ(memcmp(callsign, "VK6BUS", STRLEN("VK6BUS")), 0);
   // increment time
   (void)CTFGame_Tick(&game);
-  uint32_t current_time_held = game.time_held;
-  EXPECT_EQ(current_time_held, 1);
+  EXPECT_EQ(game.holder.time, 1);
   (void)CTFGame_Tick(&game);
   (void)CTFGame_Tick(&game);
-  current_time_held = game.time_held;
-  EXPECT_EQ(current_time_held, 3);
-  // observe high score table reflecting current user (if time held is high enough)
+  EXPECT_EQ(game.holder.time, 3);
 }
 
 TEST(ctf_run, repeated_capture) {
@@ -62,40 +69,32 @@ TEST(ctf_run, repeated_capture) {
   for (uint8_t i = 0; i < 5; i++) {
     (void)CTFGame_Tick(&game);
   }
-  EXPECT_EQ(game.time_held, 5);
+
+  EXPECT_EQ(game.holder.time, 5);
+  EXPECT_EQ(game.holder.capture_uid, 1);
   // someone else captures flag
   (void)CTFGame_Capture(&game, "VK6CHARLIE");
-  EXPECT_EQ(game.time_held, 0);
-
+  EXPECT_EQ(game.holder.time, 0);
+  EXPECT_EQ(game.holder.capture_uid, 2);
   // observe user is currently flag holder and time since held
   char callsign[20] = {0x00};
-  CTFGame_CurrentHolder(&game, callsign);
+  memcpy(callsign, game.holder.name, sizeof(game.holder.name) / sizeof(char));
 
   // observe user is currently flag holder and time held
   EXPECT_EQ(memcmp(callsign, "VK6CHARLIE", sizeof("VK6CHARLIE") / sizeof(char)), 0);
   EXPECT_NE(memcmp(callsign, "VK6BUS", sizeof("VK6BUS") / sizeof(char)), 0);
   // observe capture time is reset to 0
-  EXPECT_EQ(game.time_held, 0) << "Hold time not reset when flag newly captured.";
+  EXPECT_EQ(game.holder.time, 0) << "Hold time not reset when flag newly captured.";
 
   for (uint16_t i = 0; i < 100; i++) {
     (void)CTFGame_Tick(&game);
-    EXPECT_EQ(game.time_held, i + 1) << "Game not ticking as expected.";
+    EXPECT_EQ(game.holder.time, i + 1) << "Game not ticking as expected.";
   }
 
   // observe high score table reflecting prev user and current user (if time held is high enough)
 }
 
-// some form of module integration test
-#include "../src/highscores.h"
-
-static void VerifyTopHsEntry(Highscores *table, HighscoreEntry *e) {
-  EXPECT_EQ(table->entries[0].time, e->time);
-}
-
-TEST(ctf_run, highscores) {
-  Highscores scoreboard;
-  Highscores_Init(&scoreboard);
-
+TEST(ctf_run, printhighscores) {
   CTFGame game;
   CTFGame_Init(&game);
   CTFGame_Start(&game);
@@ -105,18 +104,39 @@ TEST(ctf_run, highscores) {
   for (uint16_t i = 0; i < 5600; i++) {
     (void)CTFGame_Tick(&game);
   }
-  // observe highscore change - top should be VK6BUS
-  int16_t uid = 0;
-
-  HighscoreEntry e;
-  STRNCPY(e.name, "VK6BUS");
-  e.time = 5600;
-  e.capture_uid = uid++;
-
-  VerifyTopHsEntry(&scoreboard, &e);
 
   (void)CTFGame_Capture(&game, "VK6CHARLIE");
   for (uint16_t i = 0; i < 3200; i++) {
     (void)CTFGame_Tick(&game);
   }
+
+  // CTFGame_Highscores(&game);
+}
+
+// some form of module integration test
+
+TEST(ctf_run, highscores) {
+  CTFGame game;
+  CTFGame_Init(&game);
+  CTFGame_Start(&game);
+
+  // User captures flag
+  (void)CTFGame_Capture(&game, "VK6BUS");
+  for (uint16_t i = 0; i < 5600; i++) {
+    (void)CTFGame_Tick(&game);
+  }
+
+  EXPECT_EQ(game.holder.time, 5600) << "Current holder time not set correctly";
+  EXPECT_EQ(game._table.entries[0].time, 5600) << "Current holder time not set correctly";
+  // observe highscore change - top should be VK6BUS
+
+  (void)CTFGame_Capture(&game, "VK6CHARLIE");
+  for (uint16_t i = 0; i < 3200; i++) {
+    (void)CTFGame_Tick(&game);
+  }
+
+  EXPECT_EQ(game.holder.time, 3200) << "Current holder time not set correctly";
+  EXPECT_EQ(game._table.entries[1].time, 3200) << "Current holder time not set correctly";
+
+  // Highscores_Print(&(game._table));
 }

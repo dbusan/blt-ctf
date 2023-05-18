@@ -103,8 +103,8 @@ TEST(Highscores, Highscores_Update) {
   EXPECT_EQ(table.entries[1].capture_uid, kUninitialisedUID);
 }
 
-static uint32_t max(uint32_t *times, uint16_t len) {
-  uint32_t maxval = times[0];
+static time_held_t max(time_held_t *times, uint16_t len) {
+  time_held_t maxval = times[0];
   for (uint16_t i = 1; i < len; i++) {
     if (times[i] > maxval) {
       maxval = times[i];
@@ -113,8 +113,8 @@ static uint32_t max(uint32_t *times, uint16_t len) {
   return maxval;
 }
 
-static uint32_t min(uint32_t *times, uint16_t len) {
-  uint32_t minval = times[0];
+static time_held_t min(time_held_t *times, uint16_t len) {
+  time_held_t minval = times[0];
   for (uint16_t i = 1; i < len; i++) {
     if (times[i] < minval) {
       minval = times[i];
@@ -143,10 +143,10 @@ TEST(Highscores, Highscores_fill_table) {
   }
 
   // check top entry
-  EXPECT_EQ(table.entries[0].time, max(static_cast<uint32_t *>(times), sizeof(times) / sizeof(time_held_t)));
+  EXPECT_EQ(table.entries[0].time, max((times), sizeof(times) / sizeof(time_held_t)));
   EXPECT_EQ(memcmp(table.entries[0].name, "VK6BSP", STRLEN("VK6BSP")), 0);
   // check lowest scoreboard entry
-  EXPECT_EQ(table.entries[9].time, min(static_cast<uint32_t *>(times), sizeof(times) / sizeof(time_held_t)));
+  EXPECT_EQ(table.entries[9].time, min((times), sizeof(times) / sizeof(time_held_t)));
   EXPECT_EQ(memcmp(table.entries[9].name, "VK1DAT", STRLEN("VK1DAT")), 0);
 
   // add another entry that will replace bottom one, VK1DAT
