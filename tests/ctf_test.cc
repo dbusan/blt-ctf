@@ -119,11 +119,13 @@ TEST(ctf, input_sanitization) {
   // minimum length of 3
   EXPECT_EQ(CTFGame_Capture(&game, "1", STRLEN("1")), err_callsign_invalid);
   EXPECT_EQ(CTFGame_Capture(&game, "", STRLEN("")), err_callsign_invalid);
-  // max length of 8 characters
-  EXPECT_EQ(CTFGame_Capture(&game, "VK1231231231231", STRLEN("VK1231231231231")), all_ok);  // trims to kMaxlength
+  // max length of 8 characters - trims to kMaxlength
+  char name[20] = "VK1231231231231";
+  EXPECT_EQ(CTFGame_Capture(&game, "VK1231231231231", STRLEN("VK1231231231231")), all_ok);
+  EXPECT_EQ(memcmp(name, game.holder.name, kMaxCallsignLength), 0);
   // only alphanumeric and ascii 0 (ascii 0 only after the minimum length of characters)
-  // EXPECT_EQ(EXPECT_EQ(CTFGame_Capture(&game, "VK6BUS!", STRLEN("VK6BUS!")), err_callsign_invalid));
-  // EXPECT_EQ(CTFGame_Capture(&game, "VK6BUS!"), err_callsign_invalid);
+  EXPECT_EQ(CTFGame_Capture(&game, "VK6BUS!", STRLEN("VK6BUS!")), err_callsign_invalid);
+
   // convert lower to upper
 }
 
