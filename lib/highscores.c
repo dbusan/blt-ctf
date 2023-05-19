@@ -11,7 +11,7 @@ extern "C" {
 void Highscores_Init(Highscores *self) {
   uint8_t len = sizeof(self->entries[0].name);
 
-  for (uint8_t i = 0; i < NR_ENTRIES; i++) {
+  for (uint8_t i = 0; i < kNrEntries; i++) {
     memset(self->entries[i].name, 0x00, len);
     self->entries[i].time = 0;
     self->entries[i].capture_uid = kUninitialisedUID;
@@ -26,13 +26,13 @@ static time_held_t Descending(const void *first, const void *second) {
 }
 
 static void Highscores_Sort(Highscores *self) {
-  qsort(self->entries, NR_ENTRIES, sizeof(self->entries[0]), Descending);
+  qsort(self->entries, kNrEntries, sizeof(self->entries[0]), Descending);
 }
 
 // this checks if the time held is greater than the minimum score
 // CALL SORT FIRST
 static bool Highscores_Validate(Highscores *self, HighscoreEntry *e) {
-  return ((e->time) > (self->entries[NR_ENTRIES - 1].time));
+  return ((e->time) > (self->entries[kNrEntries - 1].time));
 }
 
 void Highscores_HandleEntryAndSort(Highscores *self, HighscoreEntry *e) {
@@ -40,7 +40,7 @@ void Highscores_HandleEntryAndSort(Highscores *self, HighscoreEntry *e) {
   // Highscores_Sort(self);
 
   // existing entry - fn exit point here
-  for (uint8_t i = 0; i < NR_ENTRIES; i++) {
+  for (uint8_t i = 0; i < kNrEntries; i++) {
     if (self->entries[i].capture_uid == e->capture_uid) {
       self->entries[i].time = e->time;
       Highscores_Sort(self);
@@ -53,7 +53,7 @@ void Highscores_HandleEntryAndSort(Highscores *self, HighscoreEntry *e) {
   Highscores_Sort(self);
   if (Highscores_Validate(self, e)) {
     // if it does, replace last entry
-    self->entries[NR_ENTRIES - 1] = *e;
+    self->entries[kNrEntries - 1] = *e;
   }
   // and then sort to bring to correct position
   Highscores_Sort(self);
@@ -62,7 +62,7 @@ void Highscores_HandleEntryAndSort(Highscores *self, HighscoreEntry *e) {
 void Highscores_Print(const Highscores *self) {
   printf("High Scores\n");
   printf("Name\tTime held\n");
-  for (uint16_t i = 0; i < NR_ENTRIES; i++) {
+  for (uint16_t i = 0; i < kNrEntries; i++) {
     printf("%s\t%d\n", self->entries[i].name, self->entries[i].time);
   }
   printf("\n");

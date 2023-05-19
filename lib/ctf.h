@@ -20,6 +20,7 @@ typedef struct CTFGame_t {
 typedef enum CTFError_t {
   all_ok,
   err_ctf_not_running,
+  err_callsign_invalid,
 } CTFError;
 
 void CTFGame_Init(CTFGame *self);
@@ -28,7 +29,7 @@ void CTFGame_Start(CTFGame *self);
 
 void CTFGame_Stop(CTFGame *self);
 
-CTFError CTFGame_Capture(CTFGame *self, const char *capturer_callsign);
+CTFError CTFGame_Capture(CTFGame *self, const char *capturer_callsign, uint8_t len);
 
 void CTFGame_Highscores(CTFGame *self);
 

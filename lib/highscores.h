@@ -18,19 +18,20 @@ extern "C" {
 #include <stdint.h>
 #include <string.h>
 
-#define NR_ENTRIES 10
+#define kNrEntries 10
+#define kMaxCallsignLength 10
 #define kUninitialisedUID -1
 
 typedef int32_t time_held_t;
 
 typedef struct HighscoreEntry_t {
-  char name[20];
+  char name[kMaxCallsignLength];
   time_held_t time;
   int16_t capture_uid;
 } HighscoreEntry;
 
 typedef struct Highscores_t {
-  HighscoreEntry entries[NR_ENTRIES];
+  HighscoreEntry entries[kNrEntries];
 } Highscores;
 
 void Highscores_Init(Highscores *self);

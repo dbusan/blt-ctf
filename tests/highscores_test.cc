@@ -1,4 +1,4 @@
-#include "../src/highscores.h"
+#include "highscores.h"
 
 #include <gtest/gtest.h>
 
@@ -10,7 +10,7 @@ TEST(Highscores, Highscores_Init) {
   Highscores_Init(&table);
 
   // initialise check
-  for (uint16_t i = 0; i < NR_ENTRIES; i++) {
+  for (uint16_t i = 0; i < kNrEntries; i++) {
     char name[20] = {0x00};
     EXPECT_EQ(memcmp(table.entries[i].name, name, sizeof(table.entries[i].name)), 0)
         << "Entry name not initialised " << i << "\n";
@@ -58,13 +58,13 @@ TEST(Highscores, Highscores_Insert) {
   strncpy(e.name, name, sizeof(e.name));
   e.time = 360;
   e.capture_uid++;
-  time_held_t second_last_entry_time = table.entries[NR_ENTRIES - 2].time;
+  time_held_t second_last_entry_time = table.entries[kNrEntries - 2].time;
 
   Highscores_HandleEntryAndSort(&table, &e);
   // check that it is first in the table
   EXPECT_EQ(memcmp(table.entries[0].name, name, sizeof(name)), 0);
   // check that second last entry is now last entry (same time)
-  EXPECT_EQ(second_last_entry_time, table.entries[NR_ENTRIES - 1].time);
+  EXPECT_EQ(second_last_entry_time, table.entries[kNrEntries - 1].time);
 }
 
 // update existing entry

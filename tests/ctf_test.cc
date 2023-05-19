@@ -1,8 +1,6 @@
-#include "../src/ctf.h"
+#include "ctf.h"
 
 #include <gtest/gtest.h>
-
-#include "../src/highscores.h"
 
 #define STRLEN(x) (sizeof(x) / sizeof(char))
 #define STRNCPY(dest, x) (strncpy(dest, x, STRLEN(x)))
@@ -44,7 +42,7 @@ TEST(ctf_run, capture_and_increment) {
   CTFGame_Init(&game);
   CTFGame_Start(&game);
   // User captures flag
-  ASSERT_EQ(CTFGame_Capture(&game, "VK6BUS"), all_ok);
+  ASSERT_EQ(CTFGame_Capture(&game, "VK6BUS", STRLEN("VK6BUS")), all_ok);
   EXPECT_EQ(game.holder.capture_uid, 1);
 
   // observe user is currently flag holder and time since held
@@ -65,7 +63,7 @@ TEST(ctf_run, repeated_capture) {
   CTFGame_Init(&game);
   CTFGame_Start(&game);
   // User captures flag
-  ASSERT_EQ(CTFGame_Capture(&game, "VK6BUS"), all_ok);
+  ASSERT_EQ(CTFGame_Capture(&game, "VK6BUS", STRLEN("VK6BUS")), all_ok);
   for (uint8_t i = 0; i < 5; i++) {
     (void)CTFGame_Tick(&game);
   }
@@ -73,7 +71,7 @@ TEST(ctf_run, repeated_capture) {
   EXPECT_EQ(game.holder.time, 5);
   EXPECT_EQ(game.holder.capture_uid, 1);
   // someone else captures flag
-  (void)CTFGame_Capture(&game, "VK6CHARLIE");
+  (void)CTFGame_Capture(&game, "VK6CHARLIE", STRLEN("VK6CHARLIE"));
   EXPECT_EQ(game.holder.time, 0);
   EXPECT_EQ(game.holder.capture_uid, 2);
   // observe user is currently flag holder and time since held
@@ -100,17 +98,33 @@ TEST(ctf_run, printhighscores) {
   CTFGame_Start(&game);
 
   // User captures flag
-  (void)CTFGame_Capture(&game, "VK6BUS");
+  (void)CTFGame_Capture(&game, "VK6BUS", STRLEN("VK6BUS"));
   for (uint16_t i = 0; i < 5600; i++) {
     (void)CTFGame_Tick(&game);
   }
 
-  (void)CTFGame_Capture(&game, "VK6CHARLIE");
+  (void)CTFGame_Capture(&game, "VK6CHARLIE", STRLEN("VK6CHARLIE"));
   for (uint16_t i = 0; i < 3200; i++) {
     (void)CTFGame_Tick(&game);
   }
 
   // CTFGame_Highscores(&game);
+}
+
+TEST(ctf, input_sanitization) {
+  CTFGame game;
+  CTFGame_Init(&game);
+  CTFGame_Start(&game);
+
+  // minimum length of 3
+  EXPECT_EQ(CTFGame_Capture(&game, "1", STRLEN("1")), err_callsign_invalid);
+  EXPECT_EQ(CTFGame_Capture(&game, "", STRLEN("")), err_callsign_invalid);
+  // max length of 8 characters
+  EXPECT_EQ(CTFGame_Capture(&game, "VK1231231231231", STRLEN("VK1231231231231")), all_ok);  // trims to kMaxlength
+  // only alphanumeric and ascii 0 (ascii 0 only after the minimum length of characters)
+  // EXPECT_EQ(EXPECT_EQ(CTFGame_Capture(&game, "VK6BUS!", STRLEN("VK6BUS!")), err_callsign_invalid));
+  // EXPECT_EQ(CTFGame_Capture(&game, "VK6BUS!"), err_callsign_invalid);
+  // convert lower to upper
 }
 
 // some form of module integration test
@@ -121,7 +135,7 @@ TEST(ctf_run, highscores) {
   CTFGame_Start(&game);
 
   // User captures flag
-  (void)CTFGame_Capture(&game, "VK6BUS");
+  (void)CTFGame_Capture(&game, "VK6BUS", STRLEN("VK6BUS"));
   for (uint16_t i = 0; i < 5600; i++) {
     (void)CTFGame_Tick(&game);
   }
@@ -130,7 +144,7 @@ TEST(ctf_run, highscores) {
   EXPECT_EQ(game._table.entries[0].time, 5600) << "Current holder time not set correctly";
   // observe highscore change - top should be VK6BUS
 
-  (void)CTFGame_Capture(&game, "VK6CHARLIE");
+  (void)CTFGame_Capture(&game, "VK6CHARLIE", STRLEN("VK6CHARLIE"));
   for (uint16_t i = 0; i < 3200; i++) {
     (void)CTFGame_Tick(&game);
   }
