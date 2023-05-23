@@ -5,12 +5,18 @@
 #include <string.h>
 
 #include "ctf.h"
+#include "printer.h"
 
 int main(void) {
+  // create session
   CTFGame session;
+  // initialise session
   CTFGame_Init(&session);
+  // start session
   CTFGame_Start(&session);
-  char name[20] = {0x00};
+
+  // placeholder for a name
+  char name[10] = {0x00};
 
   int16_t i = 10;
   while (i--) {
@@ -21,7 +27,7 @@ int main(void) {
     }
   }
 
-  CTFGame_Highscores(&session);
+  PrintHighscores(&(session._table));
   CTFError err = CTFGame_Capture(&session, "VK6BuSSIN<>?!", sizeof("VK6BuSSIN<>?!") / sizeof(char));
   if (err != all_ok) {
     printf("Error: %d. Didn't capture callsign by %s\n", err, "VK6BuSSIN<>?!");
@@ -30,6 +36,6 @@ int main(void) {
     (void)CTFGame_Tick(&session);
   }
 
-  CTFGame_Highscores(&session);
+  PrintHighscores(&(session._table));
   return 0;
 }

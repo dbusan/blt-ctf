@@ -4,7 +4,6 @@ extern "C" {
 
 #include "ctf.h"
 
-#include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -67,7 +66,14 @@ static CTFError ValidateInput(const char *capturer_callsign, uint8_t len) {
       }
     }
 
-    if ((c >= '0' && c <= '9') || (c >= '@' && c <= 'Z') || (c >= 'a' && c <= 'z')) {
+    bool is_lowercase = (c >= 'a' && c <= 'z');
+
+    // // to upperCase - requires changing from const char to char and this creates some warnings on compile
+    // if (is_lowercase) {
+    //   c = c - 32;  // ascii uppercase conversion
+    // }
+
+    if ((c >= '0' && c <= '9') || (c >= '@' && c <= 'Z') || is_lowercase) {
       currentNrChars++;
     } else {
       err = err_callsign_invalid;
@@ -103,10 +109,6 @@ CTFError CTFGame_Capture(CTFGame *self, const char *capturer_callsign, uint8_t l
 
   Highscores_HandleEntryAndSort(&(self->_table), &(self->holder));
   return err;
-}
-
-void CTFGame_Highscores(CTFGame *self) {
-  Highscores_Print(&(self->_table));
 }
 
 CTFError CTFGame_Tick(CTFGame *self) {

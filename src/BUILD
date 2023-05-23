@@ -1,3 +1,15 @@
+cc_library(
+    name = "printer",
+    srcs = ["printer.c"],
+    hdrs = ["printer.h"],
+    copts = [
+        "-std=c11",
+        "-Ilib",
+    ],
+    # visibility = ["//visibility:private"],
+    deps = ["//lib:highscores"],
+)
+
 cc_binary(
     name = "main",
     srcs = ["main.c"],
@@ -5,5 +17,8 @@ cc_binary(
         "-std=c11",
         "-Ilib",
     ],
-    deps = ["//lib:ctf"],
+    deps = [
+        ":printer",
+        "//lib:ctf",
+    ],
 )

@@ -73,13 +73,6 @@ void CTFGame_Stop(CTFGame *self);
 CTFError CTFGame_Capture(CTFGame *self, const char *capturer_callsign, uint8_t len);
 
 /**
- * @brief This prints the Highscores using printf(). Note this is not portable to embedded systems
- *
- * @param self is a reference to the CTFGame session variable.
- */
-void CTFGame_Highscores(CTFGame *self);
-
-/**
  * @brief This function increments the time_held of the current holder and updates the high score table.
  *
  * @param self is a reference to the CTFGame session variable.

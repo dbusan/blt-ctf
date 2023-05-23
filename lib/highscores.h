@@ -1,6 +1,6 @@
 /**
  * @file highscores.h
- * @author Daniel (daniel@sstc)
+ * @author Daniel (dbusan)
  * @brief A library useful to keep track of high scores in a memory-constrained
  * workspace. Maximum number of entries
  * @version 1.0
@@ -58,8 +58,6 @@ void Highscores_Init(Highscores *self);
  * @param e
  */
 void Highscores_HandleEntryAndSort(Highscores *self, HighscoreEntry *e);
-
-void Highscores_Print(const Highscores *self);
 
 #ifdef __cplusplus
 }

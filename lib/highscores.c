@@ -5,14 +5,15 @@ extern "C" {
 #include "highscores.h"
 
 #include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 void Highscores_Init(Highscores *self) {
   uint8_t len = sizeof(self->entries[0].name);
 
   for (uint8_t i = 0; i < kNrEntries; i++) {
-    memset(self->entries[i].name, 0x00, len);
+    // replace memset
+    for (uint8_t ii = 0; ii < len; ii++) {
+      self->entries[i].name[ii] = 0x00;
+    }
     self->entries[i].time = 0;
     self->entries[i].capture_uid = kUninitialisedUID;
   }
@@ -57,15 +58,6 @@ void Highscores_HandleEntryAndSort(Highscores *self, HighscoreEntry *e) {
   }
   // and then sort to bring to correct position
   Highscores_Sort(self);
-}
-
-void Highscores_Print(const Highscores *self) {
-  printf("High Scores\n");
-  printf("Name\tTime held\n");
-  for (uint16_t i = 0; i < kNrEntries; i++) {
-    printf("%s\t%d\n", self->entries[i].name, self->entries[i].time);
-  }
-  printf("\n");
 }
 
 #ifdef __cplusplus
